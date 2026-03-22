@@ -15,6 +15,7 @@ interface StatItem {
   icon: React.ElementType
   colorClass: string
   bgClass: string
+  borderClass: string
 }
 
 export const StatsBar: React.FC<StatsBarProps> = ({
@@ -25,37 +26,41 @@ export const StatsBar: React.FC<StatsBarProps> = ({
 }) => {
   const stats: StatItem[] = [
     {
-      label: 'Toplam Kullanıcı',
+      label: 'TOPLAM',
       value: totalUsers,
       icon: Users,
       colorClass: 'text-foreground',
       bgClass: 'bg-secondary',
+      borderClass: 'border-secondary',
     },
     {
-      label: 'Fotoğraflı',
+      label: 'HAZIR',
       value: withPhotoCount,
       icon: CheckCircle2,
-      colorClass: 'text-emerald-500 dark:text-emerald-400',
-      bgClass: 'bg-emerald-50 dark:bg-emerald-950/30',
+      colorClass: 'text-success',
+      bgClass: 'bg-success',
+      borderClass: 'border-success',
     },
     {
-      label: 'Fotoğrafsız',
+      label: 'BEKLİYOR',
       value: withoutPhotoCount,
       icon: Clock,
       colorClass: 'text-muted-foreground',
-      bgClass: 'bg-secondary',
+      bgClass: 'bg-muted',
+      borderClass: 'border-muted',
     },
     {
-      label: 'Bu Oturumda',
+      label: 'OTURUM',
       value: uploadedThisSessionCount,
       icon: Upload,
       colorClass: 'text-primary',
-      bgClass: 'bg-primary/5',
+      bgClass: 'bg-primary',
+      borderClass: 'border-primary',
     },
   ]
 
   return (
-    <div className="border-b border-border bg-background">
+    <div className="border-b-[3px] border-border bg-background">
       <div className="grid grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => {
           const Icon = stat.icon
@@ -63,18 +68,21 @@ export const StatsBar: React.FC<StatsBarProps> = ({
             <div
               key={stat.label}
               className={cn(
-                "px-6 py-5 flex items-center gap-4",
-                index < stats.length - 1 && "border-r border-border"
+                "px-6 py-6 flex items-center gap-4 relative",
+                index < stats.length - 1 && "border-r-[3px] border-border"
               )}
             >
-              <div className={cn("p-2 rounded-md flex-shrink-0", stat.bgClass)}>
-                <Icon className={cn("w-4 h-4", stat.colorClass)} />
+              <div className={cn(
+                "p-3 border-[3px] flex-shrink-0 shadow-brutal transition-brutal hover:shadow-brutal-hover hover:-translate-y-0.5",
+                stat.borderClass
+              )}>
+                <Icon className={cn("w-6 h-6", stat.colorClass)} strokeWidth={2.5} />
               </div>
               <div>
-                <div className={cn("font-display text-3xl leading-none tracking-wide", stat.colorClass)}>
+                <div className={cn("font-display text-4xl leading-none tracking-tight", stat.colorClass)}>
                   {stat.value}
                 </div>
-                <div className="text-xs text-muted-foreground mt-1 font-medium tracking-wide uppercase">
+                <div className="text-xs text-muted-foreground mt-1.5 font-bold tracking-wider uppercase">
                   {stat.label}
                 </div>
               </div>

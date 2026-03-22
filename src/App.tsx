@@ -54,24 +54,22 @@ const queryClient = new QueryClient()
 function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) {
   return (
     <div className={cn(
-      "flex items-start gap-3 px-4 py-3 rounded-lg border shadow-lg animate-slide-in",
-      "bg-background max-w-sm w-full",
-      toast.type === "success"
-        ? "border-l-4 border-l-emerald-500 border-border"
-        : "border-l-4 border-l-destructive border-border"
+      "flex items-start gap-3 px-4 py-3 border-[3px] border-border shadow-brutal-lg animate-slide-in bg-card max-w-sm w-full",
+      toast.type === "success" && "border-l-[6px] border-l-success",
+      toast.type === "error" && "border-l-[6px] border-l-destructive"
     )}>
       <div className="flex-shrink-0 mt-0.5">
         {toast.type === "success"
-          ? <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-          : <AlertTriangle className="w-4 h-4 text-destructive" />
+          ? <CheckCircle2 className="w-5 h-5 text-success" strokeWidth={2.5} />
+          : <AlertTriangle className="w-5 h-5 text-destructive" strokeWidth={2.5} />
         }
       </div>
-      <p className="text-sm text-foreground flex-1 leading-snug">{toast.message}</p>
+      <p className="text-sm text-foreground flex-1 leading-snug font-medium">{toast.message}</p>
       <button
         onClick={() => onRemove(toast.id)}
-        className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors mt-0.5"
+        className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors mt-0.5 p-1 hover:bg-muted rounded"
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="w-4 h-4" strokeWidth={2.5} />
       </button>
     </div>
   )
@@ -146,21 +144,23 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
-        <div className="flex items-center justify-between h-14 px-6">
+      <header className="sticky top-0 z-40 border-b-[3px] border-border bg-background shadow-brutal">
+        <div className="flex items-center justify-between h-16 px-6">
           {/* Logo + title */}
-          <div className="flex items-center gap-3">
-            <img
-              src="https://www.kocsistem.com.tr/images/koc-logo.png"
-              alt="Koç Sistem"
-              className="h-7 w-auto object-contain"
-            />
-            <div className="hidden sm:block w-px h-5 bg-border" />
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-primary border-[3px] border-border shadow-brutal">
+              <img
+                src="https://www.kocsistem.com.tr/images/koc-logo.png"
+                alt="Koç Sistem"
+                className="h-6 w-auto object-contain brightness-0 invert"
+              />
+            </div>
+            <div className="hidden sm:block w-[3px] h-8 bg-border" />
             <div className="hidden sm:block">
-              <span className="font-display text-base tracking-[0.2em] text-foreground leading-none">
+              <span className="font-display text-xl tracking-tight text-foreground leading-none">
                 AD PHOTO MANAGER
               </span>
-              <p className="text-[10px] text-muted-foreground tracking-widest uppercase leading-none mt-0.5">
+              <p className="text-[10px] text-muted-foreground tracking-wider uppercase leading-none mt-1 font-bold">
                 Active Directory Fotoğraf Yönetimi
               </p>
             </div>
@@ -168,14 +168,14 @@ function AppContent() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-1.5">
-              <Wifi className="w-3 h-3 text-emerald-500" />
-              <span className="text-xs text-muted-foreground">Operasyonel</span>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-success/10 border-[2px] border-success">
+              <Wifi className="w-3.5 h-3.5 text-success" strokeWidth={2.5} />
+              <span className="text-xs font-bold text-success uppercase">OPERASYONEL</span>
             </div>
-            <div className="w-px h-4 bg-border hidden sm:block" />
+            <div className="w-[3px] h-6 bg-border hidden sm:block" />
             <ThemeToggle />
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="font-display text-xs text-primary-foreground tracking-wider">AD</span>
+            <div className="w-10 h-10 bg-primary border-[3px] border-border shadow-brutal flex items-center justify-center">
+              <span className="font-display text-sm text-primary-foreground tracking-wider">AD</span>
             </div>
           </div>
         </div>
@@ -199,7 +199,7 @@ function AppContent() {
       {/* ── Grid ── */}
       <main className="flex-1 p-6">
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 animate-fade-up">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5 animate-fade-up">
             {filtered.map(user => (
               <UserCard
                 key={user.id}
@@ -211,34 +211,42 @@ function AppContent() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4">
-              <span className="text-2xl">🔍</span>
+          <div className="flex flex-col items-center justify-center py-32 text-center">
+            <div className="w-20 h-20 bg-accent border-[3px] border-border shadow-brutal-lg flex items-center justify-center mb-6">
+              <span className="text-4xl">🔍</span>
             </div>
-            <h3 className="font-display text-2xl tracking-[0.15em] text-foreground mb-2">
+            <h3 className="font-display text-3xl tracking-tight text-foreground mb-3">
               SONUÇ BULUNAMADI
             </h3>
-            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+            <p className="text-sm text-muted-foreground max-w-sm leading-relaxed mb-6 font-medium">
               Arama kriterlerinize uygun kullanıcı yok. Başka bir terim veya filtre deneyin.
             </p>
             <button
               onClick={() => { setSearch(""); setDepartment("") }}
-              className="mt-5 text-xs font-semibold text-primary hover:underline underline-offset-4 transition-all"
+              className="px-6 py-3 bg-primary text-primary-foreground font-bold text-sm uppercase border-[3px] border-border shadow-brutal hover:shadow-brutal-hover hover:-translate-y-1 transition-brutal"
             >
-              Filtreleri temizle
+              FİLTRELERİ TEMİZLE
             </button>
           </div>
         )}
       </main>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-border px-6 py-3 flex items-center justify-between">
-        <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
+      <footer className="border-t-[3px] border-border px-6 py-4 flex items-center justify-between bg-muted">
+        <span className="text-[10px] text-foreground tracking-wider uppercase font-bold">
           AD Photo Manager · OIDC Auth Yakında
         </span>
-        <span className="text-[10px] text-muted-foreground">
-          JPG/JPEG · Maks 100 KB · 300×300 px
-        </span>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 px-2 py-1 bg-background border-[2px] border-border">
+            <span className="text-[10px] text-foreground font-bold">JPG/JPEG</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 px-2 py-1 bg-background border-[2px] border-border">
+            <span className="text-[10px] text-foreground font-bold">MAX 100 KB</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 px-2 py-1 bg-background border-[2px] border-border">
+            <span className="text-[10px] text-foreground font-bold">300×300 PX</span>
+          </div>
+        </div>
       </footer>
 
       {/* ── Crop Modal ── */}

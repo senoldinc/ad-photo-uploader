@@ -103,23 +103,23 @@ export const CropModal: React.FC<CropModalProps> = ({ file, isOpen, onConfirm, o
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onCancel()}>
-      <DialogContent className="max-w-md w-full gap-0 p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
-          <DialogTitle className="font-display text-2xl tracking-wider">
+      <DialogContent className="max-w-lg w-full gap-0 p-0 overflow-hidden border-[3px] border-border shadow-brutal-lg">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b-[3px] border-border bg-accent">
+          <DialogTitle className="font-display text-3xl tracking-tight text-accent-foreground">
             FOTOĞRAF KIRP
           </DialogTitle>
-          <p className="text-xs text-muted-foreground tracking-wide mt-1">
+          <p className="text-xs text-accent-foreground/70 tracking-wide mt-1 font-bold uppercase">
             300 × 300 px · Maks 100 KB · JPG
           </p>
         </DialogHeader>
 
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 py-6 space-y-6 bg-card">
           {/* Circular preview with drag */}
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-3">
             <div
               className={cn(
-                "relative w-56 h-56 rounded-full overflow-hidden border-2 bg-secondary select-none",
-                isDragging ? "cursor-grabbing border-primary" : "cursor-grab border-border"
+                "relative w-64 h-64 rounded-full overflow-hidden border-[4px] bg-muted select-none shadow-brutal-lg transition-brutal",
+                isDragging ? "cursor-grabbing border-primary scale-[1.02]" : "cursor-grab border-border"
               )}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
@@ -143,46 +143,47 @@ export const CropModal: React.FC<CropModalProps> = ({ file, isOpen, onConfirm, o
                 />
               )}
               {/* Guide ring */}
-              <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/20 pointer-events-none" />
+              <div className="absolute inset-0 rounded-full border-[3px] border-dashed border-white/30 pointer-events-none" />
             </div>
 
             {/* Drag hint */}
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Move className="w-3 h-3" />
-              <span>Görseli sürükleyerek konumlandırın</span>
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted border-[2px] border-border">
+              <Move className="w-4 h-4 text-foreground" strokeWidth={2.5} />
+              <span className="text-xs font-bold text-foreground uppercase">Sürükle & Konumlandır</span>
             </div>
           </div>
 
           {/* Zoom */}
-          <div className="space-y-2">
+          <div className="space-y-3 p-4 bg-muted border-[3px] border-border">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <ZoomIn className="w-3.5 h-3.5" />
-                <span className="font-medium">Yakınlaştırma</span>
+              <div className="flex items-center gap-2">
+                <ZoomIn className="w-5 h-5 text-foreground" strokeWidth={2.5} />
+                <span className="font-bold text-sm text-foreground uppercase">Yakınlaştırma</span>
               </div>
-              <span className="text-xs font-semibold text-foreground tabular-nums">
+              <span className="text-lg font-display text-foreground tabular-nums">
                 {cropState.scale.toFixed(1)}×
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <ZoomOut className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <ZoomOut className="w-4 h-4 text-muted-foreground flex-shrink-0" strokeWidth={2.5} />
               <Slider
                 min={0.5} max={3} step={0.1}
                 value={[cropState.scale]}
                 onValueChange={([v]) => updateScale(v)}
+                className="flex-1"
               />
-              <ZoomIn className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <ZoomIn className="w-4 h-4 text-foreground flex-shrink-0" strokeWidth={2.5} />
             </div>
           </div>
 
           {/* Quality */}
-          <div className="space-y-2">
+          <div className="space-y-3 p-4 bg-muted border-[3px] border-border">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span className="font-medium">Kalite</span>
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-5 h-5 text-foreground" strokeWidth={2.5} />
+                <span className="font-bold text-sm text-foreground uppercase">Kalite</span>
               </div>
-              <span className="text-xs font-semibold text-foreground tabular-nums">
+              <span className="text-lg font-display text-foreground tabular-nums">
                 {Math.round(cropState.quality * 100)}%
               </span>
             </div>
@@ -195,61 +196,65 @@ export const CropModal: React.FC<CropModalProps> = ({ file, isOpen, onConfirm, o
 
           {/* Size indicator */}
           <div className={cn(
-            "rounded-md p-3 border transition-colors",
+            "p-4 border-[3px] transition-colors shadow-brutal",
             isOversized
-              ? "border-destructive/50 bg-destructive/5"
-              : "border-border bg-secondary/50"
+              ? "border-destructive bg-destructive/10"
+              : "border-success bg-success/10"
           )}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
                 {isOversized
-                  ? <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
-                  : <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  ? <AlertTriangle className="w-5 h-5 text-destructive" strokeWidth={2.5} />
+                  : <CheckCircle2 className="w-5 h-5 text-success" strokeWidth={2.5} />
                 }
-                <span className="text-xs font-medium text-foreground">Dosya Boyutu</span>
+                <span className="text-sm font-bold text-foreground uppercase">Dosya Boyutu</span>
               </div>
               <span className={cn(
-                "text-sm font-bold font-display tracking-wider tabular-nums",
-                isOversized ? "text-destructive" : "text-emerald-500"
+                "text-2xl font-display tracking-tight tabular-nums",
+                isOversized ? "text-destructive" : "text-success"
               )}>
                 {outputSizeKb} KB
               </span>
             </div>
-            <div className="w-full h-1 rounded-full bg-border overflow-hidden">
+            <div className="w-full h-3 bg-background border-[2px] border-border overflow-hidden">
               <div
                 className={cn(
-                  "h-full rounded-full transition-all duration-300",
-                  isOversized ? "bg-destructive" : "bg-emerald-500"
+                  "h-full transition-all duration-300",
+                  isOversized ? "bg-destructive" : "bg-success"
                 )}
                 style={{ width: `${sizePercent}%` }}
               />
             </div>
             {isOversized && (
-              <p className="text-xs text-destructive mt-1.5">
-                Limit aşıldı — kaliteyi düşürün
+              <p className="text-xs text-destructive mt-2 font-bold uppercase">
+                ⚠ Limit aşıldı — kaliteyi düşürün
               </p>
             )}
           </div>
         </div>
 
-        <DialogFooter className="px-6 pb-6 pt-2 gap-2 flex-row">
+        <DialogFooter className="px-6 pb-6 pt-4 gap-3 flex-row border-t-[3px] border-border bg-muted">
           <Button
             variant="outline"
             onClick={onCancel}
             disabled={isProcessing}
-            className="flex-1"
+            className="flex-1 h-12 font-bold text-sm uppercase border-[3px] shadow-brutal hover:shadow-brutal-hover transition-brutal"
           >
-            İptal
+            İPTAL
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={isOversized || isProcessing}
-            className="flex-1 font-display tracking-widest"
+            className="flex-1 h-12 font-display text-sm tracking-tight border-[3px] shadow-brutal hover:shadow-brutal-hover transition-brutal disabled:opacity-50"
           >
-            {isProcessing
-              ? <><Loader2 className="w-4 h-4 animate-spin" /> İşleniyor…</>
-              : 'ONAYLA & YÜKLE'
-            }
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" strokeWidth={2.5} />
+                <span className="ml-2">İŞLENİYOR...</span>
+              </>
+            ) : (
+              'ONAYLA & YÜKLE'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
