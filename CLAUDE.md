@@ -100,3 +100,9 @@ The codebase includes infrastructure for:
 - Real AD user data (currently using mock data)
 
 Environment variables are prefixed with `VITE_` (e.g., `VITE_API_BASE_URL`, `VITE_USE_MOCK`).
+
+## Active Technologies
+- .NET 8 (C# 12) (002-dotnet-backend-ad-integration)
+
+## Recent Changes
+- 002-dotnet-backend-ad-integration: Added .NET 8 (C# 12)

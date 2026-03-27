@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+      - "5001:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal;Database=AdPhotoManager;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True
+      - Jwt__SecretKey=your-secret-key-min-32-characters-long
+      - Jwt__Issuer=AdPhotoManager
+      - Jwt__Audience=AdPhotoManager
+      - Jwt__ExpirationMinutes=60
+      - ActiveDirectory__Server=your-ad-server.com
+      - ActiveDirectory__Port=389
+      - ActiveDirectory__UseSsl=false
+      - ActiveDirectory__ServiceAccount=CN=Service Account,OU=Users,DC=domain,DC=com
+      - ActiveDirectory__ServicePassword=YourServicePassword
+      - ActiveDirectory__BaseDn=DC=domain,DC=com
+      - ActiveDirectory__AllowedOrganizations__0=IT Department
+      - ActiveDirectory__AllowedOrganizations__1=HR Department
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - adphoto-network
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourPassword123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - adphoto-network
+
+networks:
+  adphoto-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:

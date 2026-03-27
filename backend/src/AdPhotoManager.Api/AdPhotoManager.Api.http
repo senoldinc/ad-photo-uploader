@@ -1,0 +1,6 @@
+@AdPhotoManager.Api_HostAddress = http://localhost:5128
+
+GET {{AdPhotoManager.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
