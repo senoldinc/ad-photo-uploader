@@ -6,10 +6,10 @@ public class TokenResponse
     public string RefreshToken { get; set; } = string.Empty;
     public int ExpiresIn { get; set; }
     public string TokenType { get; set; } = "Bearer";
-    public UserResponse? User { get; set; }
+    public AuthUserResponse? User { get; set; }
 }
 
-public class UserResponse
+public class AuthUserResponse
 {
     public Guid Id { get; set; }
     public string DisplayName { get; set; } = string.Empty;

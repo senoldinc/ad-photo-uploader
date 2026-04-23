@@ -118,7 +118,7 @@ public class UsersController : ControllerBase
     /// Get paginated list of users with optional search and filtering
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<PaginationResponse<UserResponse>>> GetUsers(
+    public async Task<ActionResult<PaginationResponse<UserListItemResponse>>> GetUsers(
         [FromQuery] string? search,
         [FromQuery] string? organization,
         [FromQuery] string? department,
@@ -135,7 +135,7 @@ public class UsersController : ControllerBase
             var (users, totalCount) = await _userRepository.GetPagedAsync(
                 page, pageSize, search, organization, department);
 
-            var userResponses = users.Select(u => new UserResponse
+            var userResponses = users.Select(u => new UserListItemResponse
             {
                 Id = u.Id,
                 DisplayName = u.DisplayName,
@@ -149,7 +149,7 @@ public class UsersController : ControllerBase
                 LastSyncedAt = u.LastSyncedAt
             }).ToList();
 
-            return Ok(new PaginationResponse<UserResponse>(
+            return Ok(new PaginationResponse<UserListItemResponse>(
                 userResponses,
                 page,
                 pageSize,

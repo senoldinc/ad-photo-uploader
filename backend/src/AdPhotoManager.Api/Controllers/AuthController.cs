@@ -70,7 +70,7 @@ public class AuthController : ControllerBase
                 RefreshToken = result.RefreshToken,
                 ExpiresIn = result.ExpiresIn,
                 TokenType = result.TokenType,
-                User = result.User != null ? new UserResponse
+                User = result.User != null ? new AuthUserResponse
                 {
                     Id = result.User.Id,
                     DisplayName = result.User.DisplayName,

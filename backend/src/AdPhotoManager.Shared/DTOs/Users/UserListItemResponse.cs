@@ -3,7 +3,7 @@ namespace AdPhotoManager.Shared.DTOs.Users;
 /// <summary>
 /// User response model for list views
 /// </summary>
-public class UserResponse
+public class UserListItemResponse
 {
     public Guid Id { get; set; }
     public string DisplayName { get; set; } = string.Empty;

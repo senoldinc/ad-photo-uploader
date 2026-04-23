@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using AdPhotoManager.Api.Middleware;
 using AdPhotoManager.Api.HealthChecks;
+using AdPhotoManager.Core.Entities;
 using AdPhotoManager.Core.Interfaces;
 using AdPhotoManager.Infrastructure.ActiveDirectory;
 using AdPhotoManager.Infrastructure.Data;
@@ -60,106 +61,134 @@ try
         options.Filters.Add<GlobalExceptionMiddleware>();
     });
 
-// Add JWT Authentication
-var jwtSecretKey = builder.Configuration[ConfigurationKeys.JwtSecretKey];
-if (!string.IsNullOrEmpty(jwtSecretKey))
-{
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
+    // Add JWT Authentication
+    var jwtSecretKey = builder.Configuration[ConfigurationKeys.JwtSecretKey];
+    if (!string.IsNullOrEmpty(jwtSecretKey))
+    {
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration[ConfigurationKeys.JwtIssuer],
-                ValidAudience = builder.Configuration[ConfigurationKeys.JwtAudience],
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtSecretKey)),
-                ClockSkew = TimeSpan.Zero
-            };
-        });
-}
-
-builder.Services.AddAuthorization();
-
-// Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
-
-// Add Swagger/OpenAPI
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "AD Photo Manager API",
-        Version = "v1",
-        Description = "API for managing Active Directory user photos"
-    });
-
-    // Add JWT authentication to Swagger
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration[ConfigurationKeys.JwtIssuer],
+                    ValidAudience = builder.Configuration[ConfigurationKeys.JwtAudience],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSecretKey)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+    }
+
+    builder.Services.AddAuthorization();
+
+    // Add CORS
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
     });
-});
 
-var app = builder.Build();
+    // Add Swagger/OpenAPI
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "AD Photo Manager API",
+            Version = "v1",
+            Description = "API for managing Active Directory user photos"
+        });
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+        // Add JWT authentication to Swagger
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer"
+        });
 
-app.UseHttpsRedirection();
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
+    });
 
-app.UseCors();
+    var app = builder.Build();
 
-// Add Serilog request logging
-app.UseSerilogRequestLogging();
+    // Apply pending migrations and ensure seed user exists at startup.
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate();
 
-app.UseAuthentication();
-app.UseAuthorization();
+        if (!dbContext.Users.Any(u => u.EmployeeId == "02486033"))
+        {
+            dbContext.Users.Add(new User
+            {
+                Id = Guid.Parse("f4c2f5d0-7d8d-4cd8-a0bf-e450bf4c7024"),
+                AdObjectId = "f4c2f5d0-7d8d-4cd8-a0bf-e450bf4c7024",
+                DisplayName = "ŞENOL DİNÇ",
+                EmployeeId = "02486033",
+                Title = "Sistem Uzmanı",
+                Organization = "KoçSistem",
+                Department = "Bilgi Teknolojileri",
+                Email = "senol.dinc@kocsistem.com.tr",
+                HasPhoto = false,
+                LastSyncedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsDeleted = false
+            });
 
-app.MapControllers();
+            dbContext.SaveChanges();
+        }
+    }
 
-// Health check endpoints
-app.MapHealthChecks("/health");
-app.MapHealthChecks("/health/ready");
+    // Configure the HTTP request pipeline
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-app.Run();
+    app.UseHttpsRedirection();
 
+    app.UseCors();
+
+    // Add Serilog request logging
+    app.UseSerilogRequestLogging();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    // Health check endpoints
+    app.MapHealthChecks("/health");
+    app.MapHealthChecks("/health/ready");
+
+    app.Run();
 }
 catch (Exception ex)
 {
